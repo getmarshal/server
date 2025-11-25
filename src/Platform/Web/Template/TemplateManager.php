@@ -4,26 +4,26 @@ declare(strict_types= 1);
 
 namespace Marshal\Server\Platform\Web\Template;
 
-use Laminas\ServiceManager\AbstractPluginManager;
 use Marshal\Platform\Web\Render\Dom\DomTemplate;
 use Marshal\Platform\Web\Render\Dom\Layout;
 use Marshal\Server\Platform\Web\Template\Twig\TwigTemplate;
-use Psr\Container\ContainerInterface;
 
-final class TemplateManager extends AbstractPluginManager
+final class TemplateManager
 {
-    protected $instanceOf = TemplateInterface::class;
-
-    public function __construct(private ContainerInterface $container, private array $templatesConfig)
+    public function __construct(private array $layoutsConfig, private array $templatesConfig)
     {
-        parent::__construct($container);
     }
 
     public function get($name, ?array $options = null): TemplateInterface
     {
         $validator = new TemplateConfigValidator($this->templatesConfig);
         if (! $validator->isValid($name)) {
-            throw new \InvalidArgumentException(sprintf("Invalid template %s config", $name));
+            $message = "";
+            foreach ($validator->getMessages() as $str) {
+                $message .= $str;
+            }
+
+            throw new \InvalidArgumentException($message);
         }
 
         $config = $this->templatesConfig[$name];
@@ -49,11 +49,10 @@ final class TemplateManager extends AbstractPluginManager
         }
 
         $name = $config['layout'];
-        $layouts = $this->container->get('config')['layouts'] ?? [];
-        if (! isset($layouts[$name])) {
+        if (! isset($this->layoutsConfig[$name])) {
             return null;
         }
 
-        return new Layout($name, $layouts[$name]);
+        return new Layout($name, $this->layoutsConfig[$name]);
     }
 }

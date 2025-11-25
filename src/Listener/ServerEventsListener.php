@@ -32,7 +32,7 @@ class ServerEventsListener implements EventListenerInterface
 
         $pipeline = new MiddlewarePipe;
         foreach ($config as $middleware) {
-            $pipeline->pipe(middleware: new LazyLoadingMiddleware(container: $this->container, middleware: $middleware));
+            $pipeline->pipe(new LazyLoadingMiddleware(container: $this->container, middleware: $middleware));
         }
 
         $event->setResponse(response: $pipeline->handle(request: $event->getRequest()));

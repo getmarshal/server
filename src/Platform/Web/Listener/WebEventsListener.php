@@ -76,6 +76,15 @@ class WebEventsListener implements EventListenerInterface
         $event->setContents($html);
 
         // add the main menu for full pages
+        $menuConfigs = $this->container->get('config')['menus'] ?? [];
+        foreach ($event->getTemplate()->getMenus() as $menu) {
+            if (! isset($menuConfigs[$menu])) {
+                continue;
+            }
+
+            $this->buildMenu($menuConfigs[$menu]);
+        }
+
         try {
             $dom = \Dom\HTMLDocument::createFromString($html, \LIBXML_HTML_NOIMPLIED);
         } catch (\Throwable) {
@@ -93,8 +102,8 @@ class WebEventsListener implements EventListenerInterface
             // @todo menu system
             $nav = $dom->createElement('nav');
             $nav->setAttribute('id', 'menu');
-            $nav->setAttribute('class', 'd-flex align-items-center position-sticky w-75 mx-auto rounded-3 p-2 bg-black bg-opacity-75');
-            $nav->setAttribute('style', 'top: 0.33em;');
+            $nav->setAttribute('class', 'container-fluid d-flex align-items-center position-sticky py-2 bg-black bg-opacity-75');
+            $nav->setAttribute('style', 'top: 0;');
 
             $nav->appendChild($this->getNavigationHead($dom));
             $nav->appendChild($this->getDynamicNavigation($dom));
@@ -105,6 +114,11 @@ class WebEventsListener implements EventListenerInterface
 
         // update the contents
         $event->setContents($dom->saveHtml());
+    }
+
+    private function buildMenu(array $config): \Dom\HTMLElement
+    {
+        $menuConfigs = $this->container->get('config')['menus'] ?? [];
     }
 
     private function getNavigationHead(\Dom\HTMLDocument $dom): \Dom\HTMLElement

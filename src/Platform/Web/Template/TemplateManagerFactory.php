@@ -10,7 +10,8 @@ final class TemplateManagerFactory
 {
     public function __invoke(ContainerInterface $container): TemplateManager
     {
-        $config = $container->get('config')['templates'] ?? [];
-        return new TemplateManager($container, $config);
+        $layoutsConfig = $container->get('config')['layouts'] ?? [];
+        $templatesConfig = $container->get('config')['templates'] ?? [];
+        return new TemplateManager($layoutsConfig, $templatesConfig);
     }
 }

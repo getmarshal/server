@@ -69,6 +69,11 @@ final class WebPlatform implements EventDispatcherAwareInterface, LoggerFactoryA
         return new HtmlResponse($event->getContents(), $status, $headers);
     }
 
+    public function getRoutes(): array
+    {
+        return [];
+    }
+
     private function getTemplateName(ServerRequestInterface $request, array $options): string
     {
         if (isset($options['template']) && \is_string($options['template'])) {

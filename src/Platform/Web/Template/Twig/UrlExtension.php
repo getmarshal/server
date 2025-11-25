@@ -8,7 +8,7 @@ use Mezzio\Helper\ServerUrlHelper;
 use Mezzio\Helper\UrlHelperInterface;
 use Twig\Environment;
 
-class UrlExtension
+final class UrlExtension
 {
     public function __construct(
         private ServerUrlHelper $serverUrlHelper,

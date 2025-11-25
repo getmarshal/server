@@ -13,33 +13,26 @@ trait RuntimeProviderTrait
     private function setupRouting(ContainerInterface $container): void
     {
         // @todo validate routes
-        $apps = $container->get('config')['apps'] ?? [];
-        if (! \is_array($apps) || empty($apps)) {
+        $navigation = $container->get('config')['navigation'] ?? [];
+        if (! \is_array($navigation) || empty($navigation)) {
             return;
         }
 
         $routeCollector = $container->get(RouteCollectorInterface::class);
-        \assert($routeCollector instanceof RouteCollectorInterface);
+        if (! $routeCollector instanceof RouteCollectorInterface) {
+            return;
+        }
 
-        foreach ($apps as $app) {
-            $routePrefix = $app['route_prefix'] ?? null;
-            foreach ($app['routes'] as $pattern => $definition) {
-                // normalize the path
-                $path = \is_string($routePrefix) && $routePrefix !== ""
-                    ? "/$routePrefix$pattern"
-                    : $pattern;
+        foreach ($navigation['paths'] ?? [] as $pattern => $config) {
+            $route = $routeCollector->route(
+                path: $pattern,
+                middleware: new LazyLoadingMiddleware($container, $config['middleware']),
+                methods: $config['methods'] ?? ['GET'],
+                name: $config['name'],
+            );
 
-                // collect the route
-                $route = $routeCollector->route(
-                    path: $path,
-                    middleware: new LazyLoadingMiddleware(container: $container, middleware: $definition['middleware']),
-                    methods: $definition['methods'] ?? ['GET'],
-                    name: $definition['name'],
-                );
-
-                // set route options
-                $route->setOptions($definition['options'] ?? []);
-            }
+            // set route options
+            $route->setOptions($config['options'] ?? []);
         }
     }
 }

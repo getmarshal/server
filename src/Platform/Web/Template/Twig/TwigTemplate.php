@@ -44,6 +44,11 @@ final class TwigTemplate implements TemplateInterface
         return $includes;
     }
 
+    public function getMenus(): array
+    {
+        return $this->config['menus'] ?? [];
+    }
+
     public function getQueryParams(): array
     {
         return $this->config['query_params'] ?? [];

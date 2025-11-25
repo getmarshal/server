@@ -26,9 +26,7 @@ class Apache2Handler implements RuntimeInterface
         $request = ServerRequestFactory::fromGlobals();
 
         // handle the request
-        $event = new HttpRequestEvent(
-            request: $request->withAttribute(RuntimeInterface::class, self::class)
-        );
+        $event = new HttpRequestEvent($request->withAttribute(RuntimeInterface::class, self::class));
 
         try {
             $event = $this->eventDispatcher->dispatch($event);
