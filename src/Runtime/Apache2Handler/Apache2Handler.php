@@ -39,6 +39,7 @@ class Apache2Handler implements RuntimeInterface
         }
 
         // emit the response
+        // @todo create an emitter stack, and add the stream sapi emitter
         $emitter = new SapiEmitter;
         $emitter->emit($event->getResponse());
     }

@@ -17,8 +17,12 @@ final class ConfigProvider
     private function getActionsConfig(): array
     {
         return [
-            Listener\ServerEventsListener::class => [
-                Event\HttpRequestEvent::class,
+            'listeners' => [
+                Listener\ServerEventsListener::class => [
+                    Event\HttpRequestEvent::class => [
+                        'listener' => 'onHttpRequestEvent',
+                    ],
+                ],
             ],
         ];
     }

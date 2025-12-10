@@ -14,13 +14,13 @@ final class Apache2HandlerFactory
 
     public function __invoke(ContainerInterface $container): Apache2Handler
     {
-        $this->setupRouting($container);
-
         $eventDispatcher = $container->get(EventDispatcherInterface::class);
         $isDevMode = $container->get('config')['debug'] ?? FALSE;
         if (! \is_bool($isDevMode)) {
             $isDevMode = FALSE;
         }
+
+        $this->setupRouting($container);
 
         return new Apache2Handler($eventDispatcher, $isDevMode);
     }

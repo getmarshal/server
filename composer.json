@@ -2,32 +2,24 @@
     "name": "marshal/server",
     "description": "Server module for Marshal",
     "type": "library",
-    "license": "MIT",
+    "license": "AGPL-3.0-or-later",
     "autoload": {
         "psr-4": {
             "Marshal\\Server\\": "src/"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "authors": [
         {
             "name": "Collins Pamba",
             "email": "collinspamba@outlook.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../eventmanager"
-        }
-    ],
+    "config": {
+        "sort-packages": true
+    },
     "require": {
-        "laminas/laminas-diactoros": "^3.5",
         "laminas/laminas-httphandlerrunner": "^2.11",
         "laminas/laminas-stratigility": "^4.1",
-        "marshal/eventmanager": "dev-master",
-        "mezzio/mezzio-fastroute": "^3.12",
-        "symfony/console": "^7.3"
+        "marshal/utils": "^0.0.2"
     }
 }
