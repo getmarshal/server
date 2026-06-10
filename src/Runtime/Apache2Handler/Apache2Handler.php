@@ -6,9 +6,14 @@ namespace Marshal\Server\Runtime\Apache2Handler;
 
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\HttpHandlerRunner\Emitter\EmitterStack;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Marshal\Platform\PlatformInterface;
 use Marshal\Server\Event\HttpRequestEvent;
+use Marshal\Server\Event\HttpResponseEvent;
+use Marshal\Server\Response\SseResponseEmitter;
 use Marshal\Server\Runtime\RuntimeInterface;
+use Marshal\Utils\Logger\LoggerManager;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -26,22 +31,38 @@ class Apache2Handler implements RuntimeInterface
         $request = ServerRequestFactory::fromGlobals();
 
         // handle the request
-        $event = new HttpRequestEvent($request->withAttribute(RuntimeInterface::class, self::class));
-
         try {
-            $event = $this->eventDispatcher->dispatch($event);
+            $event = $this->eventDispatcher->dispatch(new HttpRequestEvent(
+                $request->withAttribute(RuntimeInterface::class, self::class)
+            ));
+            \assert($event instanceof HttpRequestEvent);
+
+            $response = $event->getResponse();
         } catch (\Throwable $e) {
             if ($this->isDebugMode) {
                 throw $e;
             }
 
-            $event->setResponse($this->generateErrorResponse($e));
+            $response = $this->generateErrorResponse($e);
         }
 
+        // dispatch the response event
+        // try {
+        //     $this->eventDispatcher->dispatch(new HttpResponseEvent(
+        //         $request,
+        //         $response,
+        //         $request->getAttribute(PlatformInterface::class)
+        //     ));
+        // } catch (\Throwable $e) {
+        //     LoggerManager::get()->error($e->getMessage());
+        // }
+
         // emit the response
-        // @todo create an emitter stack, and add the stream sapi emitter
-        $emitter = new SapiEmitter;
-        $emitter->emit($event->getResponse());
+        // @todo add the stream sapi emitter
+        $emitter = new EmitterStack();
+        $emitter->push(new SapiEmitter());
+        $emitter->push(new SseResponseEmitter());
+        $emitter->emit($response);
     }
 
     private function generateErrorResponse(\Throwable $e): ResponseInterface

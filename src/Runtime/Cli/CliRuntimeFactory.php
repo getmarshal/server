@@ -10,7 +10,7 @@ final class CliRuntimeFactory
 {
     public function __invoke(ContainerInterface $container): CliRuntime
     {
-        $console = new Application('Marshal', '0.1');
+        $console = new Application('Marshal', '0.0.1');
 
         // set up commands
         $commands = $container->get('config')['commands'] ?? [];
